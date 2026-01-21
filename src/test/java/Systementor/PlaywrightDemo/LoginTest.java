@@ -1,0 +1,46 @@
+package Systementor.PlaywrightDemo;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.AriaRole;
+import org.junit.jupiter.api.Test;
+
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+
+public class LoginTest extends BasePlaywrightTest {
+
+    @Test
+    void successfulLogin() {
+        page.navigate("https://practice.expandtesting.com/login");
+
+        page.getByLabel("Username").fill("practice");
+        page.getByLabel("Password").fill("SuperSecretPassword!");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Login")).click();
+
+        assertThat(page).hasURL("https://practice.expandtesting.com/secure");
+        assertThat(page.getByText("You logged into a secure area!")).isVisible();
+        assertThat(page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Logout"))).isVisible();
+    }
+
+    @Test
+    void invalidUsernameShowsError() {
+        page.navigate("https://practice.expandtesting.com/login");
+
+        page.getByLabel("Username").fill("wrongUser");
+        page.getByLabel("Password").fill("SuperSecretPassword!");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Login")).click();
+
+        assertThat(page).hasURL("https://practice.expandtesting.com/login");
+        assertThat(page.getByText("Your password is invalid!")).isVisible();
+    }
+
+    @Test
+    void invalidPasswordShowsError() {
+        page.navigate("https://practice.expandtesting.com/login");
+
+        page.getByLabel("Username").fill("practice");
+        page.getByLabel("Password").fill("WrongPassword");
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Login")).click();
+
+        assertThat(page).hasURL("https://practice.expandtesting.com/login");
+        assertThat(page.getByText("Your password is invalid!")).isVisible();
+    }
+}
